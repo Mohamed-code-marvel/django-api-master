@@ -2,23 +2,23 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth.models import User
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from rest_framework.exceptions import PermissionDenied
-from rest_framework import generics
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-
-
-        
-        
+from rest_framework import generics, serializers
+from django.contrib.auth import authenticate    
+from rest_framework import  permissions
+from .permissions import IsAuthorOrReadOnly
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken             
 from rest_framework.permissions import BasePermission, IsAuthenticatedOrReadOnly
 
 class IsAuthorOrReadOnly(BasePermission):
@@ -87,27 +87,6 @@ class CommentRetrieveDestroyView(generics.RetrieveDestroyAPIView):
         instance.delete()
 
 
-from rest_framework import generics, serializers
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-
-# class RegisterView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = RegisterSerializer
-
-#     def post(self, request, *args, **kwargs):
-#         response = super().post(request, *args, **kwargs)
-#         user = response.data
-#         return Response({
-#             'user': user
-#         })
-
-from rest_framework import generics, serializers
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from django.contrib.auth.models import User
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -121,43 +100,7 @@ class RegisterView(generics.CreateAPIView):
             'user': user
         })
 
-
-
-# class RegisterView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = RegisterSerializer
-
-#     def post(self, request, *args, **kwargs):
-#         response = super().post(request, *args, **kwargs)
-#         user = response.data
-#         token, created = Token.objects.get_or_create(user=User.objects.get(username=user['username']))
-#         return Response({
-#             'user': user,
-#             'token': token.key
-#         })
-
-# class LoginView(generics.GenericAPIView):
-#     serializer_class = LoginSerializer
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response({
-#             'user': UserSerializer(user).data,
-#             'token': token.key
-#         })
-
-# class LoginView(ObtainAuthToken):
-#     def post(self, request, *args, **kwargs):
-#         response = super().post(request, *args, **kwargs)
-#         token = response.data['token']
-#         user = User.objects.get(auth_token=token)
-#         return Response({
-#             'token': token,
-#             'user': UserSerializer(user).data
-#         })
-        
+  
 class PostRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -200,17 +143,6 @@ def register(request):
     return render(request, 'blog/register.html', {'form': form})
 
 
-from rest_framework import generics, serializers
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-
-from rest_framework_simplejwt.tokens import RefreshToken
-
-
-
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -240,18 +172,6 @@ class LoginView(generics.GenericAPIView):
             'user': UserSerializer(user).data
         })
 
-from rest_framework import generics, permissions
-from rest_framework.exceptions import PermissionDenied
-from .models import Comment
-from .serializers import CommentSerializer
-from .permissions import IsAuthorOrReadOnly
-
-
-        
-from rest_framework import generics, permissions
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
-from .permissions import IsAuthorOrReadOnly
 
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
